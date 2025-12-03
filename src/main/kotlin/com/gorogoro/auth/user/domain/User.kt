@@ -1,6 +1,14 @@
 package com.gorogoro.auth.user.domain
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -14,7 +22,7 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     email: String,
-    passwordHashed: String,
+    passwordEncrypted: String,
     name: String,
     nickname: String,
     role: Role,
@@ -23,7 +31,7 @@ class User(
     @Column(unique = true)
     var email: String = email
         protected set
-    var passwordHashed: String = passwordHashed
+    var passwordEncrypted: String = passwordEncrypted
         protected set
     val name: String = name
 
@@ -54,17 +62,32 @@ class User(
     var lastLoginAt: LocalDateTime? = null
         protected set
 
-
     fun updateNickname(newNickname: String) {
         this.nickname = newNickname
     }
 
-    fun lastLogin() {
-        this.lastLoginAt = LocalDateTime.now()
+    fun updateUserDate(){
+        this.modifiedAt = LocalDateTime.now()
     }
 
-    fun delete() {
-        this.status = Status.DELETED
-        this.deletedAt = LocalDateTime.now()
+    fun lastLogin(now : LocalDateTime) {
+        this.lastLoginAt = now
+    }
+
+    fun changeStatus(status : Status) {
+            when (status) {
+                Status.ACTIVATED -> {
+                    this.status = status
+                    updateUserDate()
+                }
+                Status.DELETED -> {
+                    this.status = status
+                    updateUserDate()
+                }
+                Status.DORMANT -> {
+                    this.status = status
+                    updateUserDate()
+                }
+            }
     }
 }

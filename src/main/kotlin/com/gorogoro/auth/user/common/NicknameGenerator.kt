@@ -1,7 +1,9 @@
 package com.gorogoro.auth.user.common
 
+import org.springframework.stereotype.Component
 import kotlin.random.Random
 
+@Component
 class NicknameGenerator {
     val prefixes = listOf(
         "즐거운", "행복한", "신나는", "용감한", "씩씩한",
