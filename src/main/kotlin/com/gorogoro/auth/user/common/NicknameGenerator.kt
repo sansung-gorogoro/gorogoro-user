@@ -1,4 +1,4 @@
-package com.gorogoro.auth.common
+package com.gorogoro.auth.user.common
 
 import kotlin.random.Random
 
