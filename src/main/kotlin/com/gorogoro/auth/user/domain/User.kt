@@ -1,22 +1,21 @@
 package com.gorogoro.auth.user.domain
 
+import com.gorogoro.auth.global.exception.BusinessException
+import com.gorogoro.auth.global.exception.ErrorCode
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import java.time.LocalDateTime
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import java.time.Instant
 
 @Entity
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener::class)
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,30 +46,31 @@ class User(
     var status: Status = status
         protected set
 
-    @CreatedDate
     @Column(updatable = false)
-    var createdAt: LocalDateTime? = null
+    var createdAt: Instant = Instant.now()
         protected set
 
-    @LastModifiedDate
-    var modifiedAt: LocalDateTime? = null
+    var modifiedAt: Instant = Instant.now()
         protected set
 
-    var deletedAt: LocalDateTime? = null
+    var deletedAt: Instant? = null
         protected set
 
-    var lastLoginAt: LocalDateTime? = null
+    var lastLoginAt: Instant? = null
         protected set
 
     fun updateNickname(newNickname: String) {
+        if(newNickname.isBlank()){
+            throw BusinessException.builder(ErrorCode.INVALID_NICKNAME).build()
+        }
         this.nickname = newNickname
     }
 
     fun updateUserDate(){
-        this.modifiedAt = LocalDateTime.now()
+        this.modifiedAt = Instant.now()
     }
 
-    fun lastLogin(now : LocalDateTime) {
+    fun lastLogin(now : Instant) {
         this.lastLoginAt = now
     }
 
@@ -89,5 +89,8 @@ class User(
                     updateUserDate()
                 }
             }
+    }
+    fun getAuthorities():Collection<GrantedAuthority>{
+        return listOf(SimpleGrantedAuthority("ROLE_${this.role}"))
     }
 }
