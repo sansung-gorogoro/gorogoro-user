@@ -20,20 +20,26 @@ class JwtFilter(
     private val loadUserPort: LoadUserPort,
     private val objectMapper: ObjectMapper
 ) : OncePerRequestFilter() {
-
+    private val HEADER = "Authorization"
+    private val BEARER = "Bearer "
+    private val SUBSTRING_INDEX = 7
+    private val  CHARSET = "UTF-8"
+    private val ERROR_KEY = "error"
+    private val MESSAGE_KEY = "message"
+    
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val header = request.getHeader("Authorization")
+        val header = request.getHeader(HEADER)
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header == null || !header.startsWith(BEARER)) {
             filterChain.doFilter(request, response)
             return
         }
 
-        val token = header.substring(7)
+        val token = header.substring(SUBSTRING_INDEX)
 
         try {
             val userId = jwtProvider.getUserIdIfValid(token)
@@ -64,11 +70,11 @@ class JwtFilter(
     private fun setErrorResponse(response: HttpServletResponse, errorCode: ErrorCode) {
         response.status = errorCode.status.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-        response.characterEncoding = "UTF-8"
+        response.characterEncoding = CHARSET
 
         val errorResponse = mapOf(
-            "code" to errorCode.name,
-            "message" to errorCode.message
+            ERROR_KEY to errorCode.name,
+            MESSAGE_KEY to errorCode.message
         )
 
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
