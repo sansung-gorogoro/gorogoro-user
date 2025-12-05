@@ -23,7 +23,7 @@ class JwtFilter(
     private val HEADER = "Authorization"
     private val BEARER = "Bearer "
     private val SUBSTRING_INDEX = 7
-    private val  CHARSET = "UTF-8"
+    private val CHARSET = "UTF-8"
     private val ERROR_KEY = "error"
     private val MESSAGE_KEY = "message"
 
