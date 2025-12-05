@@ -1,4 +1,4 @@
-package com.gorogoro.auth.user.infra.adapter.out
+package com.gorogoro.auth.user.infra.adapter.out.persistence
 
 import com.gorogoro.auth.user.domain.User
 import org.springframework.data.jpa.repository.JpaRepository

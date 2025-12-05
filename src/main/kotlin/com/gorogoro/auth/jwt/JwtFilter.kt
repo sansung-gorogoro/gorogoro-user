@@ -26,7 +26,7 @@ class JwtFilter(
     private val  CHARSET = "UTF-8"
     private val ERROR_KEY = "error"
     private val MESSAGE_KEY = "message"
-    
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
