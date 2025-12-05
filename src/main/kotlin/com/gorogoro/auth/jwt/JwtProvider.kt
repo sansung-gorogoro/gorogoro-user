@@ -5,60 +5,55 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.nio.charset.StandardCharsets
-import javax.crypto.SecretKey
-import io.jsonwebtoken.security.Keys
+import java.security.KeyFactory
+import java.security.PrivateKey
+import java.security.spec.PKCS8EncodedKeySpec
 import java.time.Instant
-import java.util.Date
+import java.util.*
 
 @Component
 class JwtProvider(
-    @Value("\${jwt.secret}")
-    private val secretKey: String,
     @Value("\${jwt.expiration-ms}")
-    private val accessExpirationHours: Long,
+    private val accessExpirationSeconds: Long,
     @Value("\${jwt.refresh-expiration-ms}")
-    private val refreshExpirationDays: Long
+    private val refreshExpirationDays: Long,
+    @Value("classpath:private_key.pem")
+    private val privateKeyString: String,
 ) {
     private val ROLE = "role"
+    private val encrypt = "RSA"
+    private val privateKey: PrivateKey by lazy {
+        val privateKeyPEM = String(privateKeyString.toByteArray())
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replace("\\s".toRegex(), "")
 
-    private val key: SecretKey by lazy {
-        Keys.hmacShaKeyFor(secretKey.toByteArray(StandardCharsets.UTF_8))
+        val keySpec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyPEM))
+        KeyFactory.getInstance(encrypt).generatePrivate(keySpec)
     }
 
     fun createAccessToken(userId: Long, role: Role): String {
-        val now = Instant.now()
-        val validity = now.plusSeconds(accessExpirationHours)
-
+        val expired = Instant.now().plusSeconds(accessExpirationSeconds)
         return Jwts.builder()
             .subject(userId.toString())
             .claim(ROLE, role.name)
-            .issuedAt(Date.from(now))
-            .expiration(Date.from(validity))
-            .signWith(key)
+            .issuedAt(Date.from(Instant.now()))
+            .expiration(Date.from(expired))
+            .signWith(privateKey, Jwts.SIG.RS256)
             .compact()
+
     }
 
     fun createRefreshToken(): Pair<String, Instant> {
         val now = Instant.now()
-        val validity = now.plusSeconds(refreshExpirationDays) // 매우 긴 시간
+        val validity = now.plusSeconds(refreshExpirationDays)
 
         val token = Jwts.builder()
             .issuedAt(Date.from(now))
             .expiration(Date.from(validity))
-            .signWith(key)
+            .signWith(privateKey, Jwts.SIG.RS256)
             .compact()
 
         return Pair(token, validity)
-    }
-
-    fun getUserIdIfValid(token: String): Long {
-        val claims: Claims = Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .payload
-
-        return claims.subject.toLong()
     }
 }
