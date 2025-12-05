@@ -30,7 +30,7 @@ spring:
   jackson:
     time-zone: Asia/Seoul
     serialization:
-      write-dates-as-timestamps: false
+      write-dates-as-timestamps: true
 
   # Spring Security (?? ??? ?? ?? ?? ? ?? ??)
   # security:

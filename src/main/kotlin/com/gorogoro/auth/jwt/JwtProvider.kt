@@ -20,6 +20,8 @@ class JwtProvider(
     @Value("\${jwt.refresh-expiration-ms}")
     private val refreshExpirationDays: Long
 ) {
+    private val ROLE = "role"
+
     private val key: SecretKey by lazy {
         Keys.hmacShaKeyFor(secretKey.toByteArray(StandardCharsets.UTF_8))
     }
@@ -30,7 +32,7 @@ class JwtProvider(
 
         return Jwts.builder()
             .subject(userId.toString())
-            .claim("role", role.name)
+            .claim(ROLE, role.name)
             .issuedAt(Date.from(now))
             .expiration(Date.from(validity))
             .signWith(key)
