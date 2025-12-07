@@ -13,8 +13,8 @@ import com.gorogoro.auth.global.exception.BusinessException
 import com.gorogoro.auth.global.exception.ErrorCode
 import com.gorogoro.auth.jwt.JwtProvider
 import com.gorogoro.auth.user.common.NicknameGenerator
-import com.gorogoro.auth.user.domain.Status
-import com.gorogoro.auth.user.domain.User
+import com.gorogoro.auth.user.model.constant.Status
+import com.gorogoro.auth.user.model.User
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -76,7 +76,7 @@ class AuthService(
             ?: throw BusinessException.builder(ErrorCode.REFRESH_TOKEN_NOT_FOUND).build()
 
         if(savedRefreshToken.isExpired()){
-            deleteRefreshToken(savedRefreshToken.id)
+            savedRefreshToken.id?.let { deleteRefreshToken(it) }
             throw BusinessException.builder(ErrorCode.TOKEN_EXPIRED).build()
         }
 
@@ -84,14 +84,13 @@ class AuthService(
                 ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
 
         if(user.status != Status.ACTIVATED) {
-            deleteRefreshToken(savedRefreshToken.id)
+            savedRefreshToken.id?.let { deleteRefreshToken(it) }
             throw BusinessException.builder(ErrorCode.USER_STATUS_IS_NOT_VALID).build()
         }
 
         val accessToken = jwtProvider.createAccessToken(user.id, user.role)
-        savedRefreshToken.changeToken(accessToken, Instant.now().plusSeconds(3155760000))
-        refreshTokenPort.save(savedRefreshToken)
-        return AccessTokenResponse(savedRefreshToken.refreshToken)
+
+        return AccessTokenResponse(accessToken)
     }
 
     private fun generateUniqueNickname(): String {

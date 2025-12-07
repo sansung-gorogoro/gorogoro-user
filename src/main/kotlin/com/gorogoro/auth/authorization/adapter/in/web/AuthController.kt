@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 class AuthController(
     private val signupUseCase: SignupUseCase,
     private val loginUseCase: LoginUseCase,
     private val refreshTokenUseCase: RefreshTokenUseCase,
 ) {
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     fun signup(@RequestBody command: SignupCommand): ResponseEntity<Unit> {
         signupUseCase.signup(command)
         return ResponseEntity.ok().build()

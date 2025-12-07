@@ -1,6 +1,6 @@
 package com.gorogoro.auth.authorization.application.dto
 
-import com.gorogoro.auth.user.domain.Role
+import com.gorogoro.auth.user.model.constant.Role
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
