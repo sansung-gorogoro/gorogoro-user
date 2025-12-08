@@ -1,4 +1,4 @@
-package com.gorogoro.auth.user.infra.adapter.out.persistence.adapter
+package com.gorogoro.auth.user.infra.adapter.out.persistence.adapter.out
 
 import com.gorogoro.auth.user.application.port.out.NicknamePolicyPort
 import org.springframework.stereotype.Component
