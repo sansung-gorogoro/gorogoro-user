@@ -1,20 +1,25 @@
 package com.gorogoro.auth.authorization.application.service
 
-import com.gorogoro.auth.authorization.application.dto.*
+import com.gorogoro.auth.authorization.application.dto.AccessTokenResponse
+import com.gorogoro.auth.authorization.application.dto.LoginCommand
+import com.gorogoro.auth.authorization.application.dto.LoginResultResponse
+import com.gorogoro.auth.authorization.application.dto.RefreshTokenCommand
+import com.gorogoro.auth.authorization.application.dto.SignupCommand
 import com.gorogoro.auth.authorization.application.port.`in`.LoginUseCase
 import com.gorogoro.auth.authorization.application.port.`in`.RefreshTokenUseCase
 import com.gorogoro.auth.authorization.application.port.`in`.SignupUseCase
-import com.gorogoro.auth.authorization.application.port.out.CheckUserPort
-import com.gorogoro.auth.authorization.application.port.out.LoadUserPort
+import com.gorogoro.auth.user.application.port.out.CheckUserPort
+import com.gorogoro.auth.user.application.port.out.LoadUserPort
 import com.gorogoro.auth.authorization.application.port.out.RefreshTokenPort
-import com.gorogoro.auth.authorization.application.port.out.SaveUserPort
+import com.gorogoro.auth.user.application.port.out.SaveUserPort
 import com.gorogoro.auth.authorization.model.RefreshToken
 import com.gorogoro.auth.global.exception.BusinessException
 import com.gorogoro.auth.global.exception.ErrorCode
 import com.gorogoro.auth.jwt.JwtProvider
-import com.gorogoro.auth.user.common.NicknameGenerator
-import com.gorogoro.auth.user.model.constant.Status
+import com.gorogoro.auth.user.infra.adapter.out.persistence.adapter.NicknameGenerateAdapter
 import com.gorogoro.auth.user.model.User
+import com.gorogoro.auth.user.infra.persistence.entity.toEntity
+import com.gorogoro.auth.user.model.constant.Status
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -28,7 +33,7 @@ class AuthService(
     private val refreshTokenPort: RefreshTokenPort,
     private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder,
-    private val nicknameGenerator: NicknameGenerator,
+    private val nicknameGenerator: NicknameGenerateAdapter,
 ) : LoginUseCase, SignupUseCase, RefreshTokenUseCase {
 
     @Transactional
@@ -40,13 +45,15 @@ class AuthService(
             passwordEncrypted = encryptedPassword,
             name = cmd.name,
             nickname = uniqueNickname,
-            role = cmd.role
+            role = cmd.role,
+            createdAt = Instant.now(),
+            modifiedAt = Instant.now(),
         )
-        saveUserPort.saveUser(newUser)
+        saveUserPort.saveUser(newUser.toEntity())
     }
 
     @Transactional
-    override fun login(cmd: LoginCommand): TokenResponse {
+    override fun login(cmd: LoginCommand): LoginResultResponse {
         val user = loadUserPort.findByEmail(cmd.email)
             ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
 
@@ -67,7 +74,9 @@ class AuthService(
 
         user.lastLogin(Instant.now())
 
-        return TokenResponse(accessToken, refreshToken)
+        saveUserPort.saveUser(user.toEntity())
+
+        return LoginResultResponse(user.nickname, user.role, accessToken, refreshToken)
     }
 
     @Transactional(noRollbackFor = [BusinessException::class])
@@ -75,15 +84,15 @@ class AuthService(
         val savedRefreshToken = refreshTokenPort.findByRefreshToken(cmd.refreshToken)
             ?: throw BusinessException.builder(ErrorCode.REFRESH_TOKEN_NOT_FOUND).build()
 
-        if(savedRefreshToken.isExpired()){
+        if (savedRefreshToken.isExpired()) {
             savedRefreshToken.id?.let { deleteRefreshToken(it) }
             throw BusinessException.builder(ErrorCode.TOKEN_EXPIRED).build()
         }
 
         val user = loadUserPort.findById(savedRefreshToken.userId)
-                ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
+            ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
 
-        if(user.status != Status.ACTIVATED) {
+        if (user.status != Status.ACTIVATED) {
             savedRefreshToken.id?.let { deleteRefreshToken(it) }
             throw BusinessException.builder(ErrorCode.USER_STATUS_IS_NOT_VALID).build()
         }
@@ -110,7 +119,7 @@ class AuthService(
         return nickname
     }
 
-    private fun deleteRefreshToken(id: Long){
+    private fun deleteRefreshToken(id: Long) {
         refreshTokenPort.deleteRefreshTokenById(id)
     }
 }

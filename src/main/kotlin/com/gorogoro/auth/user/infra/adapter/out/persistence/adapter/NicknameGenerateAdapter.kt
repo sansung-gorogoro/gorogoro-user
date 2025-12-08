@@ -1,10 +1,11 @@
-package com.gorogoro.auth.user.common
+package com.gorogoro.auth.user.infra.adapter.out.persistence.adapter
 
+import com.gorogoro.auth.user.application.port.out.NicknamePolicyPort
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 
 @Component
-class NicknameGenerator {
+class NicknameGenerateAdapter : NicknamePolicyPort {
     val prefixes = listOf(
         "즐거운", "행복한", "신나는", "용감한", "씩씩한",
         "상냥한", "차분한", "열정적인", "수줍은", "호기심많은",
@@ -29,7 +30,8 @@ class NicknameGenerator {
         "탐험가", "여행자", "학습자", "선생님", "학생",
         "히어로", "마법사", "요정", "예술가", "박사님"
     )
-    fun generate(): String {
+
+    override fun generate(): String {
         val prefix = prefixes.random()
         val suffix = suffixes.random()
 
