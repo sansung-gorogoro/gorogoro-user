@@ -1,4 +1,4 @@
-package com.gorogoro.auth.user.infra.adapter.out.persistence.adapter.out
+package com.gorogoro.auth.user.infra.adapter.out
 
 import com.gorogoro.auth.global.exception.BusinessException
 import com.gorogoro.auth.global.exception.ErrorCode

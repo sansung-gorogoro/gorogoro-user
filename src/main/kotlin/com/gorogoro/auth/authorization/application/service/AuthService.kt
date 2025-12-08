@@ -8,17 +8,16 @@ import com.gorogoro.auth.authorization.application.dto.SignupCommand
 import com.gorogoro.auth.authorization.application.port.`in`.LoginUseCase
 import com.gorogoro.auth.authorization.application.port.`in`.RefreshTokenUseCase
 import com.gorogoro.auth.authorization.application.port.`in`.SignupUseCase
-import com.gorogoro.auth.user.application.port.out.CheckUserPort
+import com.gorogoro.auth.user.application.port.out.CheckNicknamePort
 import com.gorogoro.auth.user.application.port.out.LoadUserPort
 import com.gorogoro.auth.authorization.application.port.out.RefreshTokenPort
-import com.gorogoro.auth.user.application.port.out.SaveUserPort
+import com.gorogoro.auth.authorization.application.port.out.SaveUserPort
 import com.gorogoro.auth.authorization.model.RefreshToken
 import com.gorogoro.auth.global.exception.BusinessException
 import com.gorogoro.auth.global.exception.ErrorCode
 import com.gorogoro.auth.jwt.JwtProvider
-import com.gorogoro.auth.user.infra.adapter.out.persistence.adapter.NicknameGenerateAdapter
+import com.gorogoro.auth.user.application.port.out.NicknamePolicyPort
 import com.gorogoro.auth.user.model.User
-import com.gorogoro.auth.user.infra.persistence.entity.toEntity
 import com.gorogoro.auth.user.model.constant.Status
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -28,12 +27,12 @@ import java.time.Instant
 @Service
 class AuthService(
     private val loadUserPort: LoadUserPort,
-    private val checkUserPort: CheckUserPort,
+    private val checkNicknamePort: CheckNicknamePort,
     private val saveUserPort: SaveUserPort,
     private val refreshTokenPort: RefreshTokenPort,
     private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder,
-    private val nicknameGenerator: NicknameGenerateAdapter,
+    private val nicknameGenerator: NicknamePolicyPort,
 ) : LoginUseCase, SignupUseCase, RefreshTokenUseCase {
 
     @Transactional
@@ -49,7 +48,7 @@ class AuthService(
             createdAt = Instant.now(),
             modifiedAt = Instant.now(),
         )
-        saveUserPort.saveUser(newUser.toEntity())
+        saveUserPort.saveUser(newUser)
     }
 
     @Transactional
@@ -74,7 +73,7 @@ class AuthService(
 
         user.lastLogin(Instant.now())
 
-        saveUserPort.saveUser(user.toEntity())
+        saveUserPort.saveUser(user)
 
         return LoginResultResponse(user.nickname, user.role, accessToken, refreshToken)
     }
@@ -114,7 +113,7 @@ class AuthService(
             nickname = nicknameGenerator.generate()
             retryCount++
 
-        } while (checkUserPort.existsByNickname(nickname))
+        } while (checkNicknamePort.existsByNickname(nickname))
 
         return nickname
     }

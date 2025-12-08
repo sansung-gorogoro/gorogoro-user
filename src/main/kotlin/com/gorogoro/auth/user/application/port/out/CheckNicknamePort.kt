@@ -1,5 +1,5 @@
 package com.gorogoro.auth.user.application.port.out
 
-interface CheckUserPort {
+interface CheckNicknamePort {
     fun existsByNickname(nickname: String): Boolean
 }
