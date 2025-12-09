@@ -1,4 +1,4 @@
-package com.gorogoro.auth.user.domain
+package com.gorogoro.auth.user.model.constant
 
 enum class Status {
     ACTIVATED,
