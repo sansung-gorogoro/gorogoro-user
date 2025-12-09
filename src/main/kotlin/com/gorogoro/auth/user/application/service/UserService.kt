@@ -52,7 +52,7 @@ class UserService(
                         throw BusinessException.builder(ErrorCode.PASSWORD_SAME_PREV).build()
                     }
                 val newEncryptedPassword = passwordEncoder.encode(it)
-                user.updatePassword(newEncryptedPassword)
+                user.updatePassword(it,newEncryptedPassword)
             }
         }
 

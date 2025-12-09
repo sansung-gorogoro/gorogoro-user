@@ -19,7 +19,7 @@ enum class ErrorCode(
     INACTIVE_USER(HttpStatus.BAD_REQUEST,"휴면 계졍입니다. 이메일 인증을 통해 활성화 시켜주세요."),
     INVALID_NICKNAME(HttpStatus.BAD_REQUEST,"닉네임이 유효하지 않습니다."),
     FAILURE_CREATED_NICKNAME(HttpStatus.INTERNAL_SERVER_ERROR,"닉네임 생성에 실패했습니다. 잠시후 다시 시도해주세요."),
-    USER_NAME_CANT_USE_SPECIAL_CHAR(HttpStatus.BAD_REQUEST,"이름에는 특수문자를 사용할 수 없습니다."),
+    CANT_USE_SPECIAL_CHAR(HttpStatus.BAD_REQUEST,"특수문자는 공백만 사용할 수 있습니다."),
     STRING_LENGTH_TOO_MUCH(HttpStatus.BAD_REQUEST,"문자열이 너무 깁니다. 다시 입력해 주세요."),
     STRING_CANT_BE_BLANK(HttpStatus.BAD_REQUEST,"공백은 입력 될 수 없습니다."),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST,"중복된 닉네임 입니다. 다시 입력해 주세요."),

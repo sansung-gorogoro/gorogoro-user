@@ -5,7 +5,6 @@ import com.gorogoro.auth.authorization.application.dto.LoginCommand
 import com.gorogoro.auth.authorization.application.dto.LoginResultResponse
 import com.gorogoro.auth.authorization.application.dto.RefreshTokenCommand
 import com.gorogoro.auth.authorization.application.dto.SignupCommand
-import com.gorogoro.auth.authorization.application.dto.TokenResponse
 import com.gorogoro.auth.authorization.application.port.`in`.LoginUseCase
 import com.gorogoro.auth.authorization.application.port.`in`.RefreshTokenUseCase
 import com.gorogoro.auth.authorization.application.port.`in`.SignupUseCase
