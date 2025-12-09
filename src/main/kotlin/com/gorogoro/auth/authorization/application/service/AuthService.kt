@@ -60,6 +60,10 @@ class AuthService(
             throw BusinessException.builder(ErrorCode.INVALID_PASSWORD).build()
         }
 
+        if(user.status!= Status.ACTIVATED){
+            throw BusinessException.builder(ErrorCode.INACTIVE_USER).build()
+        }
+
         val accessToken = jwtProvider.createAccessToken(user.id, user.role)
 
         val (refreshToken, expireDate) = jwtProvider.createRefreshToken()

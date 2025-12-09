@@ -16,6 +16,7 @@ enum class ErrorCode(
     //유저 에러
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "아이디/비밀번호가 유효하지 않습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST,"아이디/비밀번호가 유효하지 않습니다."),
+    INACTIVE_USER(HttpStatus.BAD_REQUEST,"휴면 계졍입니다. 이메일 인증을 통해 활성화 시켜주세요."),
     INVALID_NICKNAME(HttpStatus.BAD_REQUEST,"닉네임이 유효하지 않습니다."),
     FAILURE_CREATED_NICKNAME(HttpStatus.INTERNAL_SERVER_ERROR,"닉네임 생성에 실패했습니다. 잠시후 다시 시도해주세요."),
     USER_NAME_CANT_USE_SPECIAL_CHAR(HttpStatus.BAD_REQUEST,"이름에는 특수문자를 사용할 수 없습니다."),
