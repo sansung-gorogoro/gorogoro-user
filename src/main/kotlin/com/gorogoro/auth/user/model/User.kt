@@ -119,6 +119,7 @@ class User(
                 throw BusinessException.builder(ErrorCode.INVALID_PASSWORD).build()
             }
         }
+
         private fun validateSpecialChar(str: String) {
             if (!str.matches(SPECIAL_CHAR)) {
                 throw BusinessException.builder(ErrorCode.CANT_USE_SPECIAL_CHAR).build()
