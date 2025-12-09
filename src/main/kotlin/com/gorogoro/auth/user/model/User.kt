@@ -39,6 +39,7 @@ class User(
         protected set
 
     init {
+        validateEmail(this.email)
         validateNickname(this.nickname)
         validateName(this.name)
     }
@@ -80,13 +81,6 @@ class User(
         this.modifiedAt = now
     }
 
-    private fun validateEmail(newEmail: String) {
-        nonBlankString(newEmail)
-        if (!newEmail.matches(EMAIL_REGEX)) {
-            throw BusinessException.builder(ErrorCode.INVALID_EMAIL_FORMAT).build()
-        }
-    }
-
     private fun validateNickname(newNickname: String) {
         nonBlankString(newNickname)
         validateSpecialChar(newNickname)
@@ -95,7 +89,7 @@ class User(
 
     private fun validateName(name: String) {
         nonBlankString(name)
-        validateSpecialChar(name)
+        validateNameInSpecialChar(name)
         validateStrLength(name, NAME_MAX_LENGTH)
     }
 
@@ -111,23 +105,35 @@ class User(
         }
     }
 
-    private fun validateSpecialChar(str: String) {
-        if (!str.matches(NAME_REGEX)) {
-            throw BusinessException.builder(ErrorCode.USER_NAME_CANT_USE_SPECIAL_CHAR).build()
-        }
-    }
-
     companion object {
         private val EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$".toRegex()
         private val NICKNAME_MAX_LENGTH = 10
         private val NAME_MAX_LENGTH = 7
         private val NAME_REGEX = "^[가-힣]+\$".toRegex()
+        private val SPECIAL_CHAR = "^[가-힣a-zA-Z0-9 ]+\$".toRegex()
 
         val PASSWORD_POLICY_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$".toRegex()
 
-        fun validateRawPassword(rawPassword: String) {
-            if (!PASSWORD_POLICY_REGEX.matches(rawPassword)) {
+        private fun validateRawPassword(rawPassword: String) {
+            if (!rawPassword.matches(PASSWORD_POLICY_REGEX)) {
                 throw BusinessException.builder(ErrorCode.INVALID_PASSWORD).build()
+            }
+        }
+        private fun validateSpecialChar(str: String) {
+            if (!str.matches(SPECIAL_CHAR)) {
+                throw BusinessException.builder(ErrorCode.CANT_USE_SPECIAL_CHAR).build()
+            }
+        }
+
+        private fun validateNameInSpecialChar(str: String) {
+            if (!str.matches(NAME_REGEX)) {
+                throw BusinessException.builder(ErrorCode.CANT_USE_SPECIAL_CHAR).build()
+            }
+        }
+
+        private fun validateEmail(newEmail: String) {
+            if (!newEmail.matches(EMAIL_REGEX)) {
+                throw BusinessException.builder(ErrorCode.INVALID_EMAIL_FORMAT).build()
             }
         }
     }
