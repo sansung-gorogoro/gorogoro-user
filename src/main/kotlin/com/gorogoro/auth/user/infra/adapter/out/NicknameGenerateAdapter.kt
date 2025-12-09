@@ -37,6 +37,6 @@ class NicknameGenerateAdapter : NicknamePolicyPort {
 
         val number = Random.nextInt(1000, 10000)
 
-        return "${prefix}_${suffix}_${number}"
+        return "${prefix} ${suffix}${number}"
     }
 }

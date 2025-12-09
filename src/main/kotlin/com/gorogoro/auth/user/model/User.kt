@@ -53,8 +53,9 @@ class User(
         updateUserDate()
     }
 
-    fun updatePassword(newPassword: String) {
-        this.passwordEncrypted = newPassword
+    fun updatePassword(newPassword: String, newPasswordEncrypted: String) {
+        validateRawPassword(newPassword)
+        this.passwordEncrypted = newPasswordEncrypted
         updateUserDate()
     }
 
@@ -80,25 +81,22 @@ class User(
     }
 
     private fun validateEmail(newEmail: String) {
-        val emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$".toRegex()
         nonBlankString(newEmail)
-        if (!newEmail.matches(emailRegex)) {
+        if (!newEmail.matches(EMAIL_REGEX)) {
             throw BusinessException.builder(ErrorCode.INVALID_EMAIL_FORMAT).build()
         }
     }
 
     private fun validateNickname(newNickname: String) {
-        val nickNameMaxLength = 10
         nonBlankString(newNickname)
         validateSpecialChar(newNickname)
-        validateStrLength(newNickname, nickNameMaxLength)
+        validateStrLength(newNickname, NICKNAME_MAX_LENGTH)
     }
 
     private fun validateName(name: String) {
-        val nameMaxLength = 7
         nonBlankString(name)
         validateSpecialChar(name)
-        validateStrLength(name, nameMaxLength)
+        validateStrLength(name, NAME_MAX_LENGTH)
     }
 
     private fun nonBlankString(str: String) {
@@ -114,10 +112,23 @@ class User(
     }
 
     private fun validateSpecialChar(str: String) {
-        val validCharRegex = "^[가-힣a-zA-Z ]+\$".toRegex()
-
-        if (!str.matches(validCharRegex)) {
+        if (!str.matches(NAME_REGEX)) {
             throw BusinessException.builder(ErrorCode.USER_NAME_CANT_USE_SPECIAL_CHAR).build()
+        }
+    }
+
+    companion object {
+        private val EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$".toRegex()
+        private val NICKNAME_MAX_LENGTH = 10
+        private val NAME_MAX_LENGTH = 7
+        private val NAME_REGEX = "^[가-힣]+\$".toRegex()
+
+        val PASSWORD_POLICY_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$".toRegex()
+
+        fun validateRawPassword(rawPassword: String) {
+            if (!PASSWORD_POLICY_REGEX.matches(rawPassword)) {
+                throw BusinessException.builder(ErrorCode.INVALID_PASSWORD).build()
+            }
         }
     }
 }
