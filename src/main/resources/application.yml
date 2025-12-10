@@ -30,7 +30,7 @@ spring:
     port: 5672
     username: ${RABBIT_ID}
     password: ${RABBIT_PASSWORD}
-    virtual-host: app-vhost
+    virtual-host: ${VHOST}
 
   jackson:
     time-zone: Asia/Seoul

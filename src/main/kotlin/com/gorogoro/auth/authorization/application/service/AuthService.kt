@@ -18,6 +18,7 @@ import com.gorogoro.auth.global.exception.ErrorCode
 import com.gorogoro.auth.jwt.JwtProvider
 import com.gorogoro.auth.user.application.port.out.NicknamePolicyPort
 import com.gorogoro.auth.user.application.port.out.SendNotificationPort
+import com.gorogoro.auth.user.infra.adapter.out.messaging.producer.MessageProducer
 import com.gorogoro.auth.user.model.User
 import com.gorogoro.auth.user.model.constant.Status
 import org.springframework.security.crypto.password.PasswordEncoder
