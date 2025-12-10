@@ -25,7 +25,12 @@ spring:
         highlight_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: ${BATCH_SIZE}
-
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    port: 5672
+    username: ${RABBIT_ID}
+    password: ${RABBIT_PASSWORD}
+    virtual-host: app-vhost
 
   jackson:
     time-zone: Asia/Seoul

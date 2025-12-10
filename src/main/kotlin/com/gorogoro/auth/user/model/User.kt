@@ -107,7 +107,7 @@ class User(
 
     companion object {
         private val EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$".toRegex()
-        private val NICKNAME_MAX_LENGTH = 10
+        private val NICKNAME_MAX_LENGTH = 20
         private val NAME_MAX_LENGTH = 7
         private val NAME_REGEX = "^[가-힣]+\$".toRegex()
         private val SPECIAL_CHAR = "^[가-힣a-zA-Z0-9 ]+\$".toRegex()
