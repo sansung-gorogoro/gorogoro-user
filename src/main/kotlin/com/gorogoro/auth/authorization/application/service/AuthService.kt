@@ -17,6 +17,8 @@ import com.gorogoro.auth.global.exception.BusinessException
 import com.gorogoro.auth.global.exception.ErrorCode
 import com.gorogoro.auth.jwt.JwtProvider
 import com.gorogoro.auth.user.application.port.out.NicknamePolicyPort
+import com.gorogoro.auth.user.application.port.out.SendNotificationPort
+import com.gorogoro.auth.user.infra.adapter.out.messaging.producer.MessageProducer
 import com.gorogoro.auth.user.model.User
 import com.gorogoro.auth.user.model.constant.Status
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -33,6 +35,7 @@ class AuthService(
     private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder,
     private val nicknameGenerator: NicknamePolicyPort,
+    private val sendNotificationPort: SendNotificationPort,
 ) : LoginUseCase, SignupUseCase, RefreshTokenUseCase {
 
     @Transactional
@@ -49,6 +52,8 @@ class AuthService(
             modifiedAt = Instant.now(),
         )
         saveUserPort.saveUser(newUser)
+
+        sendNotificationPort.sendWelcomeNotification(newUser.email, newUser.name)
     }
 
     @Transactional
