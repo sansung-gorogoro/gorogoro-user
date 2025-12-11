@@ -1,4 +1,4 @@
-package com.gorogoro.auth.user.infra.adapter.`in`.web.dto
+package com.gorogoro.auth.user.infra.adapter.`in`.web.request
 
 data class UpdateUserRequest(
     val email: String?,

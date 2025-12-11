@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+  rabbit1:
+    image: rabbitmq:3-management
+    container_name: rabbit1
+    hostname: rabbit1
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI (1번 노드만 개방)
+    environment:
+      # 공통 계정 + vhost (처음 부팅 시 생성)
+      RABBITMQ_DEFAULT_USER: appuser
+      RABBITMQ_DEFAULT_PASS: apppass
+      RABBITMQ_DEFAULT_VHOST: app-vhost
+
+      # 클러스터를 위한 공통 Erlang Cookie
+      RABBITMQ_ERLANG_COOKIE: "MY_SECRET_COOKIE"
+
+      # split-brain 방지를 위한 파티션 처리 정책
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit cluster_partition_handling pause_minority"
+
+    volumes:
+      - rabbit1_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_net
+
+  rabbit2:
+    image: rabbitmq:3-management
+    container_name: rabbit2
+    hostname: rabbit2
+    depends_on:
+      - rabbit1
+    environment:
+      RABBITMQ_DEFAULT_USER: appuser
+      RABBITMQ_DEFAULT_PASS: apppass
+      RABBITMQ_DEFAULT_VHOST: app-vhost
+      RABBITMQ_ERLANG_COOKIE: "MY_SECRET_COOKIE"
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit cluster_partition_handling pause_minority"
+    volumes:
+      - rabbit2_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_net
+
+  rabbit3:
+    image: rabbitmq:3-management
+    container_name: rabbit3
+    hostname: rabbit3
+    depends_on:
+      - rabbit1
+    environment:
+      RABBITMQ_DEFAULT_USER: appuser
+      RABBITMQ_DEFAULT_PASS: apppass
+      RABBITMQ_DEFAULT_VHOST: app-vhost
+      RABBITMQ_ERLANG_COOKIE: "MY_SECRET_COOKIE"
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit cluster_partition_handling pause_minority"
+    volumes:
+      - rabbit3_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_net
+
+networks:
+  rabbitmq_net:
+    driver: bridge
+
+volumes:
+  rabbit1_data:
+  rabbit2_data:
+  rabbit3_data:

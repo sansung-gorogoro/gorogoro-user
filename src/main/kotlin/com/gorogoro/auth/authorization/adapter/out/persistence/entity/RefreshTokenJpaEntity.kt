@@ -20,7 +20,7 @@ class RefreshTokenJpaEntity(
     @Column(nullable = false)
     val userId: Long,
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     var refreshToken: String,
 
     @Column(nullable = false)

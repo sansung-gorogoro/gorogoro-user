@@ -28,7 +28,7 @@ class GlobalExceptionHandler {
         val response = ErrorResponse(
             status = status.value(),
             error = status.reasonPhrase,
-            message = "Internal Server Error"
+            message = "Internal Server Error : ${e.stackTraceToString()}"
         )
 
         return ResponseEntity.status(status).body(response)
