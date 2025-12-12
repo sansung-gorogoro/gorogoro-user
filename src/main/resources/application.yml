@@ -53,3 +53,18 @@ logging:
 jwt:
   expiration-seconds: ${ACCESS_TOKEN_EXPIRED}
   refresh-expiration-seconds: ${REFRESH_TOKEN_EXPIRED}
+
+rabbit:
+  events:
+    exchange: lxp.events
+    routing-prefix: lxp.
+    queues:
+      user:
+        name: user.events.q
+        bindings:
+          - lxp.user.created
+          - lxp.user.verified
+    dlq:
+      dlx: lxp.events.dlx
+      name: lxp.events.dlq
+      routing: lxp.events.dlq
