@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus
 class BusinessException private constructor(
     val httpStatus: HttpStatus,
     override val message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
+    val CustomErrorCode: String,
 ) : RuntimeException(message, cause) {
 
     companion object {
@@ -17,6 +18,7 @@ class BusinessException private constructor(
     class Builder(private val errorCode: ErrorCode) {
         private val params = mutableListOf<Any>()
         private var cause: Throwable? = null
+        private val customErrorCode = errorCode.errorCode
 
         fun withId(vararg ids: Long): Builder {
             params.addAll(ids.toList())
@@ -48,7 +50,8 @@ class BusinessException private constructor(
             return BusinessException(
                 httpStatus = errorCode.status,
                 message = finalMessage,
-                cause = cause
+                cause = cause,
+                CustomErrorCode = customErrorCode
             )
         }
     }

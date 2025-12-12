@@ -1,7 +1,6 @@
 package com.gorogoro.auth.global.exception
 
 import com.gorogoro.auth.global.exception.dto.ErrorResponse
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -15,7 +14,8 @@ class GlobalExceptionHandler {
         val response = ErrorResponse(
             status = e.httpStatus.value(),
             error = e.httpStatus.reasonPhrase,
-            message = e.message
+            message = e.message,
+            errorCode = e.CustomErrorCode
         )
 
         return ResponseEntity.status(e.httpStatus).body(response)
@@ -23,14 +23,14 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
-
-        val status = HttpStatus.INTERNAL_SERVER_ERROR
+        val error = ErrorCode.GLOBAL_ERROR_UNEXPECTED
         val response = ErrorResponse(
-            status = status.value(),
-            error = status.reasonPhrase,
-            message = "Internal Server Error : ${e.stackTraceToString()}"
+            status = error.status.value(),
+            error = error.status.reasonPhrase,
+            message = error.message,
+            errorCode = error.errorCode
         )
 
-        return ResponseEntity.status(status).body(response)
+        return ResponseEntity.status(error.status).body(response)
     }
 }
