@@ -16,10 +16,8 @@ class ServerController(
 ) {
     @GetMapping("/nickname")
     fun getNickname(@RequestParam("userId") userId: Long): ResponseEntity<NicknameResponse>{
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@userId :  $userId")
         val command = GetUserCommand(userId)
         val response = getUserUseCase.getUserNickname(command)
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@Response :  $response")
         return ResponseEntity.ok(response)
     }
 }
