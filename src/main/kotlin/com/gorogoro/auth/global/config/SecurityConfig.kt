@@ -25,10 +25,11 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/server/**").permitAll()
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/users/**").permitAll()
-                    .anyRequest().authenticated()
+                    //.requestMatchers("/server/**").permitAll()
+                    //.requestMatchers("/api/auth/**").permitAll()
+                    //.requestMatchers("/api/users/**").permitAll()
+                    .anyRequest().permitAll()
+            //.authenticated()
             }
 
         return http.build()

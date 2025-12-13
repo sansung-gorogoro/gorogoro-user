@@ -12,10 +12,8 @@ class GlobalExceptionHandler {
     fun handleBusinessException(e: BusinessException): ResponseEntity<ErrorResponse> {
 
         val response = ErrorResponse(
-            status = e.httpStatus.value(),
-            error = e.httpStatus.reasonPhrase,
             message = e.message,
-            errorCode = e.CustomErrorCode
+            code = e.CustomErrorCode
         )
 
         return ResponseEntity.status(e.httpStatus).body(response)
@@ -25,10 +23,8 @@ class GlobalExceptionHandler {
     fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
         val error = ErrorCode.GLOBAL_ERROR_UNEXPECTED
         val response = ErrorResponse(
-            status = error.status.value(),
-            error = error.status.reasonPhrase,
             message = error.message,
-            errorCode = error.errorCode
+            code = error.errorCode
         )
 
         return ResponseEntity.status(error.status).body(response)
