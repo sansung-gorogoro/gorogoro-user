@@ -28,6 +28,7 @@ enum class ErrorCode(
     PASSWORD_SAME_PREV(HttpStatus.BAD_REQUEST,"비밀번호는 이전과 같은 비밀번호로 변경할 수 없습니다.","US-0011"),
     NICKNAME_SAME_PREV(HttpStatus.BAD_REQUEST,"닉네임은 이전과 같습니다. 다시 입력해 주세요","US-0012"),
     USER_STATUS_IS_NOT_VALID(HttpStatus.BAD_REQUEST,"해당 유저는 휴면 또는 삭제 되었습니다.","US-0013"),
+    USER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST,"이미 가입된 유저 입니다.","US-0014"),
 
     //예기치 않은 글로벌 에러
     GLOBAL_ERROR_UNEXPECTED(HttpStatus.INTERNAL_SERVER_ERROR,"예기치 않은 에러가 발생했습니다. 문의팀에 문의를 남겨주세요.","GB-0001"),

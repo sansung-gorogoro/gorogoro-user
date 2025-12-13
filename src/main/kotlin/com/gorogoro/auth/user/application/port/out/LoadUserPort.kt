@@ -5,4 +5,5 @@ import com.gorogoro.auth.user.model.User
 interface LoadUserPort {
     fun findByEmail(email: String): User?
     fun findById(id: Long): User?
+    fun existsByEmail(email: String): Boolean
 }
