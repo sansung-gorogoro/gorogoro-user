@@ -2,14 +2,15 @@ package com.gorogoro.auth.user.application.service
 
 import com.gorogoro.auth.global.exception.BusinessException
 import com.gorogoro.auth.global.exception.ErrorCode
-import com.gorogoro.auth.user.application.port.out.CheckNicknamePort
-import com.gorogoro.auth.user.application.port.out.LoadUserPort
-import com.gorogoro.auth.user.application.port.out.ModifyUserPort
 import com.gorogoro.auth.user.application.dto.GetUserCommand
 import com.gorogoro.auth.user.application.dto.UpdateUserCommand
 import com.gorogoro.auth.user.application.port.`in`.GetUserUseCase
 import com.gorogoro.auth.user.application.port.`in`.ModifyUserUseCase
-import com.gorogoro.auth.user.model.User
+import com.gorogoro.auth.user.application.port.out.CheckNicknamePort
+import com.gorogoro.auth.user.application.port.out.LoadUserPort
+import com.gorogoro.auth.user.application.port.out.ModifyUserPort
+import com.gorogoro.auth.user.infra.adapter.`in`.server.response.NicknameResponse
+import com.gorogoro.auth.user.infra.adapter.`in`.web.response.FindUserResponse
 import com.gorogoro.auth.user.model.constant.Status
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -23,8 +24,25 @@ class UserService(
     private val loadUserPort: LoadUserPort,
     private val passwordEncoder: PasswordEncoder
 ) : GetUserUseCase, ModifyUserUseCase {
-    override fun getUserInfo(command: GetUserCommand): User? {
-        TODO("Not yet implemented")
+    override fun getUserInfo(command: GetUserCommand): FindUserResponse {
+        val user = loadUserPort.findById(command.id)
+            ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
+        return FindUserResponse(
+            id = user.id,
+            username = user.name,
+            nickname = user.nickname,
+            email = user.email,
+            role = user.role.name,
+            createAt = user.createdAt,
+            )
+    }
+
+    override fun getUserNickname(command: GetUserCommand): NicknameResponse {
+        val user = loadUserPort.findById(command.id)
+        ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
+        return NicknameResponse(
+            nickname = user.nickname,
+        )
     }
 
     override fun updateUserInfo(command: UpdateUserCommand) {
@@ -48,11 +66,11 @@ class UserService(
             }
 
             command.passwordEncrypted?.let {
-                if(passwordEncoder.matches(it, user.passwordEncrypted)){
-                        throw BusinessException.builder(ErrorCode.PASSWORD_SAME_PREV).build()
-                    }
+                if (passwordEncoder.matches(it, user.passwordEncrypted)) {
+                    throw BusinessException.builder(ErrorCode.PASSWORD_SAME_PREV).build()
+                }
                 val newEncryptedPassword = passwordEncoder.encode(it)
-                user.updatePassword(it,newEncryptedPassword)
+                user.updatePassword(it, newEncryptedPassword)
             }
         }
 

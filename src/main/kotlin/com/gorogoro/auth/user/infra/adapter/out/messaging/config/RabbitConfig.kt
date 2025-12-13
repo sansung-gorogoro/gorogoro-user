@@ -1,48 +1,45 @@
 package com.gorogoro.auth.user.infra.adapter.out.messaging.config
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.gorogoro.auth.user.infra.adapter.out.messaging.consumer.dto.EventEnvelope
 import org.springframework.amqp.core.AcknowledgeMode
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
+import org.springframework.amqp.core.Declarables
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.QueueBuilder
 import org.springframework.amqp.core.TopicExchange
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
+import org.springframework.amqp.support.converter.DefaultClassMapper
 import org.springframework.amqp.support.converter.Jackson2JavaTypeMapper
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.context.annotation.Bean
-import org.springframework.stereotype.Component
+import org.springframework.context.annotation.Configuration
 
-@Component
-class RabbitConfig {
+@Configuration
+class RabbitMqConfig(
+    private val props: MessagingProps,
+    private val objectMapper: ObjectMapper,
+) {
+
     @Bean
-    fun pocQueue(): Queue {
-        return QueueBuilder.durable(QUEUE_NAME)
+    fun userQueue(): Queue {
+        return QueueBuilder.durable(props.queues.user.name)
             .withArgument(QUEUE_TYPE, QUEUE_TYPE_VALUE)
-            .withArgument(DEAD_LETTER_EXCHANGE_NAME, DLX_NAME)
-            .withArgument(DEAD_LETTER_ROUTING_KEY, DLQ_ROUTING_KEY)
-            .build()
+            .withArgument(DEAD_LETTER_EXCHANGE_NAME, props.dlq.dlx)
+            .withArgument(DEAD_LETTER_ROUTING_KEY, props.dlq.routing).build()
     }
 
     @Bean
-    fun pocQueue2(): Queue {
-        return QueueBuilder.durable(QUEUE_NAME2)
-            .withArgument(QUEUE_TYPE, QUEUE_TYPE_VALUE)
-            .withArgument(DEAD_LETTER_EXCHANGE_NAME, DLX_NAME)
-            .withArgument(DEAD_LETTER_ROUTING_KEY, DLQ_ROUTING_KEY)
-            .build()
-    }
+    fun dlq(): Queue = QueueBuilder.durable(props.dlq.name).build()
 
     @Bean
-    fun pocDlq(): Queue = QueueBuilder.durable(DLQ_NAME).build()
-
-    @Bean
-    fun rabbitListenerContainerFactory(cf: ConnectionFactory,messageConverter: MessageConverter): SimpleRabbitListenerContainerFactory {
+    fun rabbitListenerContainerFactory(
+        cf: ConnectionFactory,
+        messageConverter: MessageConverter,
+    ): SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
         factory.setConnectionFactory(cf)
         factory.setConcurrentConsumers(CONCURRENCY_CONSUMERS)
@@ -54,68 +51,48 @@ class RabbitConfig {
     }
 
     @Bean
-    fun pocQueueBinding(pocQueue: Queue, pocExchange: TopicExchange): Binding {
-        return BindingBuilder.bind(pocQueue).to(pocExchange).with(ROUTING_KEY)
+    fun userQueueBinding(userQueue: Queue, eventExchange: TopicExchange): Declarables {
+        return Declarables(
+            props.queues.user.bindings.stream().map { rk ->
+                BindingBuilder.bind(userQueue).to(eventExchange).with(rk)
+            }.toList()
+        )
     }
 
     @Bean
-    fun pocQueue2Binding(pocQueue2: Queue, pocExchange: TopicExchange): Binding {
-        return BindingBuilder.bind(pocQueue2).to(pocExchange).with(ROUTING_KEY)
+    fun dlqBinding(dlq: Queue, dlx: TopicExchange): Binding {
+        return BindingBuilder.bind(dlq).to(dlx).with(props.dlq.routing)
     }
 
     @Bean
-    fun pocDlqBinding(pocDlq: Queue, pocDlx: TopicExchange): Binding {
-        return BindingBuilder.bind(pocDlq).to(pocDlx).with(DLQ_ROUTING_KEY)
-    }
+    fun eventExchange(): TopicExchange = TopicExchange(props.exchange)
 
     @Bean
-    fun notificationExchange(): TopicExchange = TopicExchange(NOTIFICATION_EXCHANGE)
+    fun dlx(): TopicExchange = TopicExchange(props.dlq.dlx)
 
     @Bean
-    fun pocExchange(): TopicExchange = TopicExchange(EXCHANGE_NAME)
-
-    @Bean
-    fun pocDlx(): TopicExchange = TopicExchange(DLX_NAME)
-
-    @Bean
-    fun jsonMessageConverter(): MessageConverter = Jackson2JsonMessageConverter()
-
-    @Bean
-    fun messageConverter(): Jackson2JsonMessageConverter {
-        val objectMapper = ObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-            registerModule(JavaTimeModule())
-
-            registerKotlinModule()
+    fun messageConverter(objectMapper: ObjectMapper): MessageConverter {
+        val converter = Jackson2JsonMessageConverter(objectMapper)
+        val classMapper = DefaultClassMapper().apply {
+            setIdClassMapping(
+                mapOf(
+                    EventEnvelope::class.java.name to EventEnvelope::class.java,
+                )
+            )
+            setTrustedPackages("com.gorogoro.notification")
         }
-
-        return Jackson2JsonMessageConverter(objectMapper).apply {
-            setTypePrecedence(Jackson2JavaTypeMapper.TypePrecedence.INFERRED)
-        }
+        converter.setClassMapper(classMapper)
+        converter.typePrecedence = Jackson2JavaTypeMapper.TypePrecedence.TYPE_ID
+        return converter
     }
 
     companion object {
-        const val QUEUE_NAME = "poc.spring.queue"
-        const val QUEUE_NAME2 = "poc.spring.queue2"
-        const val DLQ_NAME = "poc.spring.queue.dlq"
-
-        const val EXCHANGE_NAME = "poc.spring.exchange"
-        const val DLX_NAME = "poc.spring.dlx"
-
-        const val ROUTING_KEY = "poc.spring.routing"
-        const val DLQ_ROUTING_KEY = "poc.spring.routing.dlq"
-
-        const val QUEUE_TYPE ="x-queue-type"
+        const val QUEUE_TYPE = "x-queue-type"
         const val QUEUE_TYPE_VALUE = "quorum"
         const val DEAD_LETTER_EXCHANGE_NAME = "x-dead-letter-exchange"
         const val DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key"
-
         const val CONCURRENCY_CONSUMERS = 3
         const val MAX_CONCURRENCY_CONSUMERS = 10
         const val PREFETCH_COUNT = 10
-
-        const val NOTIFICATION_EXCHANGE = "poc.spring.exchange"
-        const val NOTIFICATION_ROUTING_KEY = "poc.spring.routing"
     }
 }
