@@ -18,7 +18,6 @@ import com.gorogoro.auth.global.exception.ErrorCode
 import com.gorogoro.auth.jwt.JwtProvider
 import com.gorogoro.auth.user.application.port.out.NicknamePolicyPort
 import com.gorogoro.auth.user.application.port.out.SendNotificationPort
-import com.gorogoro.auth.user.infra.adapter.out.messaging.producer.MessageProducer
 import com.gorogoro.auth.user.model.User
 import com.gorogoro.auth.user.model.constant.Status
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -41,6 +40,11 @@ class AuthService(
     @Transactional
     override fun signup(cmd: SignupCommand) {
         val encryptedPassword = passwordEncoder.encode(cmd.password)
+
+        if(loadUserPort.existsByEmail(cmd.email)){
+            throw BusinessException.builder(ErrorCode.USER_ALREADY_EXISTS).build()
+        }
+
         val uniqueNickname = generateUniqueNickname()
         val newUser = User(
             email = cmd.email,

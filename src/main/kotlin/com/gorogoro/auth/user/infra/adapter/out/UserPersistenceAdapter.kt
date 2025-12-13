@@ -35,4 +35,8 @@ class UserPersistenceAdapter(
         val savedEntity = userJpaRepository.save(user.toEntity())
         return savedEntity.toDomain()
     }
+
+    override fun existsByEmail(email: String): Boolean {
+        return userJpaRepository.existsByEmail(email)
+    }
 }
