@@ -2,6 +2,7 @@ package com.gorogoro.auth.global.exception
 
 import com.gorogoro.auth.global.exception.dto.ErrorResponse
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -18,6 +19,23 @@ class GlobalExceptionHandler {
 
         return ResponseEntity.status(e.httpStatus).body(response)
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+        val errorField = e.bindingResult.fieldErrors.firstOrNull()?.field
+
+        val errorCode = ValidationErrorCode.findByField(errorField) ?: ValidationErrorCode.INVALID_INPUT_IN_COMMAND
+
+        val response = ErrorResponse(
+            message = errorCode.message,
+            code = errorCode.errorCode
+        )
+
+        return ResponseEntity
+            .status(errorCode.httpStatus)
+            .body(response)
+    }
+
 
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
