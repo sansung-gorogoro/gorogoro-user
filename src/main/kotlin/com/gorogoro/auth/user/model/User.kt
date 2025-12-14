@@ -128,7 +128,7 @@ class User(
 
         private fun validateNameInSpecialChar(str: String) {
             if (!str.matches(NAME_REGEX)) {
-                throw BusinessException.builder(ErrorCode.CANT_USE_SPECIAL_CHAR).build()
+                throw BusinessException.builder(ErrorCode.COMPETE_KOREAN_NAME).build()
             }
         }
 
