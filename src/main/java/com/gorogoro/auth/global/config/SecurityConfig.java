@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/server/**").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/reissue").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new GatewayAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

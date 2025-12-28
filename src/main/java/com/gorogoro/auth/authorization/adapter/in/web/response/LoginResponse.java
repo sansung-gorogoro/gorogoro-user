@@ -14,7 +14,6 @@ public class LoginResponse {
     private String name;
     private String email;
     private String accessToken;
-    private String refreshToken;
 
     public static LoginResponse from(LoginResult loginResult) {
         return LoginResponse.builder()
@@ -22,7 +21,6 @@ public class LoginResponse {
                 .name(loginResult.getName())
                 .email(loginResult.getEmail())
                 .accessToken(loginResult.getAccessToken())
-                .refreshToken(loginResult.getRefreshToken())
                 .build();
     }
 }
