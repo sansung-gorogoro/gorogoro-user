@@ -1,28 +1,27 @@
-package com.gorogoro.auth.authorization.application.dto.result;
+package com.gorogoro.auth.user.application.dto.result;
 
 import com.gorogoro.auth.user.domain.model.User;
-import lombok.AccessLevel;
+import com.gorogoro.auth.user.domain.type.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LoginResult {
+public class UserResult {
     private Long userId;
     private String email;
     private String name;
-    private String accessToken;
-    private String refreshToken;
+    private UserRole role;
 
-    public static LoginResult of(String accessToken, String refreshToken, User user) {
-        return LoginResult.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+    public static UserResult from(User user) {
+        return UserResult.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
+                .role(user.getRole())
                 .build();
     }
 }
