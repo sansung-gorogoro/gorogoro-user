@@ -2,18 +2,17 @@ package com.gorogoro.auth.user.domain.model;
 
 import com.gorogoro.auth.user.domain.type.UserRole;
 import com.gorogoro.auth.user.domain.type.UserStatus;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
     private Long id;
     private String email;

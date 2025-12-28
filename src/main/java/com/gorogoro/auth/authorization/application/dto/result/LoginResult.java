@@ -1,15 +1,14 @@
 package com.gorogoro.auth.authorization.application.dto.result;
 
 import com.gorogoro.auth.user.domain.model.User;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginResult {
     private Long userId;
     private String email;
