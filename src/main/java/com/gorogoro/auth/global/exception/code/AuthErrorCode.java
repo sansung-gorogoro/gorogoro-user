@@ -8,7 +8,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
+<<<<<<< HEAD
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "ATH-0001", "이메일 또는 비밀번호가 올바르지 않습니다.");
+
+=======
     ;
+>>>>>>> origin/develop
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
