@@ -36,7 +36,7 @@ public class AuthorizationController {
                 .secure(false)
                 .path("/")
                 .maxAge(JwtConstants.REFRESH_TOKEN_EXPIRATION_MILLIS / 1000)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         return ResponseEntity.ok()
