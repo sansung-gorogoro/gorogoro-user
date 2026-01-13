@@ -57,5 +57,10 @@ public class User {
             throw new BaseException(UserErrorCode.STRING_LENGTH_TOO_MUCH);
         }
     }
+
+    public void updatePassword(String encryptedPassword) {
+        this.password = encryptedPassword;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
 
