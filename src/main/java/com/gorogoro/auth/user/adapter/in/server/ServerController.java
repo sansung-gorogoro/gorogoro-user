@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/server/users")
 @RequiredArgsConstructor
@@ -18,6 +21,11 @@ public class ServerController {
     @GetMapping("/nickname")
     public ResponseEntity<UserNicknameResponse> getUser(@RequestParam Long userId) {
         return ResponseEntity.ok(UserNicknameResponse.from(getUserUseCase.getUser(userId)));
+    }
+
+    @GetMapping("/nicknames")
+    public ResponseEntity<Map<Long, String>> getUserNicknames(@RequestParam List<Long> userIds) {
+        return ResponseEntity.ok(getUserUseCase.getUserNicknames(userIds));
     }
 }
 

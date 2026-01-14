@@ -9,6 +9,7 @@ import com.gorogoro.auth.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -34,6 +35,13 @@ public class UserPersistenceAdapter implements UserQueryPort, UserCommandPort {
     public Optional<User> getUserId(Long userId) {
         return userJpaRepository.findById(userId)
                 .map(userMapper::toDomain);
+    }
+
+    @Override
+    public List<User> getUsersByIds(List<Long> ids) {
+        return userJpaRepository.findAllById(ids).stream()
+                .map(userMapper::toDomain)
+                .toList();
     }
 
     @Override

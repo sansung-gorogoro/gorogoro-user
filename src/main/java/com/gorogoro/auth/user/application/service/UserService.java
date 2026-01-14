@@ -18,6 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -50,6 +54,22 @@ public class UserService implements RegisterUserUseCase, GetUserUseCase, UpdateU
         User user = userQueryPort.getUserId(userId)
                 .orElseThrow(() -> new BaseException(UserErrorCode.USER_NOT_FOUND));
         return UserResult.from(user);
+    }
+
+    @Override
+    public Map<Long, String> getUserNicknames(List<Long> userIds) {
+        List<Long> distinctUserIds = userIds.stream()
+                .distinct()
+                .toList();
+
+        List<User> users = userQueryPort.getUsersByIds(distinctUserIds);
+
+        if (users.size() != distinctUserIds.size()) {
+            throw new BaseException(UserErrorCode.USER_NOT_FOUND);
+        }
+
+        return users.stream()
+                .collect(Collectors.toMap(User::getId, User::getName));
     }
 
     @Override
