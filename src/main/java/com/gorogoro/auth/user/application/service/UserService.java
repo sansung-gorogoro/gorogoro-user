@@ -42,7 +42,7 @@ public class UserService implements RegisterUserUseCase, GetUserUseCase, UpdateU
                 request.getEmail(),
                 request.getName(),
                 passwordEncoder.encode(request.getPassword()),
-                UserRole.USER,
+                request.getRole(),
                 UserStatus.ACTIVE
         );
 
