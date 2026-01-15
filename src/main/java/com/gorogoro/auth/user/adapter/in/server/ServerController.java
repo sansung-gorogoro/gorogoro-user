@@ -1,6 +1,7 @@
 package com.gorogoro.auth.user.adapter.in.server;
 
 import com.gorogoro.auth.user.adapter.in.server.response.UserNicknameResponse;
+import com.gorogoro.auth.user.adapter.in.server.response.UserNicknamesResponse;
 import com.gorogoro.auth.user.application.port.in.GetUserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/server/users")
@@ -18,6 +21,11 @@ public class ServerController {
     @GetMapping("/nickname")
     public ResponseEntity<UserNicknameResponse> getUser(@RequestParam Long userId) {
         return ResponseEntity.ok(UserNicknameResponse.from(getUserUseCase.getUser(userId)));
+    }
+
+    @GetMapping("/nicknames")
+    public ResponseEntity<UserNicknamesResponse> getUserNicknames(@RequestParam List<Long> userIds) {
+        return ResponseEntity.ok(UserNicknamesResponse.from(getUserUseCase.getUserNicknames(userIds)));
     }
 }
 
