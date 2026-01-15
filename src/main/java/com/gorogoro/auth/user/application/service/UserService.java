@@ -89,8 +89,12 @@ public class UserService implements RegisterUserUseCase, GetUserUseCase, UpdateU
         User user = userQueryPort.getUserId(command.getUserId())
                 .orElseThrow(() -> new BaseException(UserErrorCode.USER_NOT_FOUND));
 
-        // 도메인 로직을 통해 정보 수정
+        // 닉네임 변경
         user.updateProfile(command.getName());
+
+        // 비밀번호 암호화 및 변경
+        String encodedPassword = passwordEncoder.encode(command.getPassword());
+        user.updatePassword(encodedPassword);
 
         // 변경사항 저장
         User savedUser = userCommandPort.saveUser(user);

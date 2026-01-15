@@ -12,11 +12,13 @@ import lombok.AccessLevel;
 public class UpdateUserCommand {
     private Long userId;
     private String name;
+    private String password;
 
     public static UpdateUserCommand of(Long userId, UpdateUserRequest request) {
         return UpdateUserCommand.builder()
                 .userId(userId)
                 .name(request.getName())
+                .password(request.getNewPassword())
                 .build();
     }
 }
