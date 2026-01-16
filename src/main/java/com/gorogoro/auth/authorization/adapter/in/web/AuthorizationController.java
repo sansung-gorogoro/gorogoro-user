@@ -58,7 +58,7 @@ public class AuthorizationController {
                 ReissueResponse.from(reissueUseCase.reissue(refreshToken)));
     }
 
-    @DeleteMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
         logoutUseCase.logout(refreshToken);
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", "")
