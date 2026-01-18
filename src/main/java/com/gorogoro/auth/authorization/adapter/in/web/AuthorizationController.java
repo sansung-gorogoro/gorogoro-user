@@ -6,7 +6,10 @@ import com.gorogoro.auth.authorization.adapter.in.web.response.ReissueResponse;
 import com.gorogoro.auth.authorization.application.dto.command.LoginCommand;
 import com.gorogoro.auth.authorization.application.dto.result.LoginResult;
 import com.gorogoro.auth.authorization.application.port.in.LoginUseCase;
+import com.gorogoro.auth.authorization.application.port.in.LogoutUseCase;
 import com.gorogoro.auth.authorization.application.port.in.ReissueUseCase;
+import com.gorogoro.auth.global.exception.BaseException;
+import com.gorogoro.auth.global.exception.code.AuthErrorCode;
 import com.gorogoro.auth.global.jwt.JwtConstants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthorizationController {
     private final LoginUseCase loginUseCase;
     private final ReissueUseCase reissueUseCase;
+    private final LogoutUseCase logoutUseCase;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -45,9 +50,28 @@ public class AuthorizationController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<ReissueResponse> reissue(@CookieValue(value = "refresh_token") String refreshToken) {
+    public ResponseEntity<ReissueResponse> reissue(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
+        if (refreshToken == null) {
+            throw new BaseException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
         return ResponseEntity.ok(
                 ReissueResponse.from(reissueUseCase.reissue(refreshToken)));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
+        logoutUseCase.logout(refreshToken);
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .build();
     }
 }
 

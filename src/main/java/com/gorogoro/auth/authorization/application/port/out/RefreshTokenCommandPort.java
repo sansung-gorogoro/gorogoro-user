@@ -4,5 +4,6 @@ import com.gorogoro.auth.authorization.domain.model.RefreshToken;
 
 public interface RefreshTokenCommandPort {
     void saveRefreshToken(RefreshToken refreshToken);
+    void deleteRefreshToken(String refreshToken);
 }
 

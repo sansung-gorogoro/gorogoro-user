@@ -28,5 +28,10 @@ public class AuthorizationPersistenceAdapter implements RefreshTokenQueryPort, R
         return refreshTokenRedisRepository.findById(token)
                 .map(refreshTokenMapper::toDomain);
     }
+
+    @Override
+    public void deleteRefreshToken(String refreshToken) {
+        refreshTokenRedisRepository.deleteById(refreshToken);
+    }
 }
 

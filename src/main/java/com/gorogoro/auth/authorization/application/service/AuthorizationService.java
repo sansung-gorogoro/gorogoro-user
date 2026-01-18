@@ -4,6 +4,7 @@ import com.gorogoro.auth.authorization.application.dto.command.LoginCommand;
 import com.gorogoro.auth.authorization.application.dto.result.LoginResult;
 import com.gorogoro.auth.authorization.application.dto.result.ReissueResult;
 import com.gorogoro.auth.authorization.application.port.in.LoginUseCase;
+import com.gorogoro.auth.authorization.application.port.in.LogoutUseCase;
 import com.gorogoro.auth.authorization.application.port.in.ReissueUseCase;
 import com.gorogoro.auth.authorization.application.port.out.RefreshTokenCommandPort;
 import com.gorogoro.auth.authorization.application.port.out.RefreshTokenQueryPort;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AuthorizationService implements LoginUseCase, ReissueUseCase {
+public class AuthorizationService implements LoginUseCase, ReissueUseCase, LogoutUseCase {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserQueryPort userQueryPort;
@@ -62,8 +63,8 @@ public class AuthorizationService implements LoginUseCase, ReissueUseCase {
         RefreshToken refreshToken = refreshTokenQueryPort.getRefreshToken(refreshTokenValue)
                 .orElseThrow(() -> new BaseException(AuthErrorCode.INVALID_REFRESH_TOKEN));
 
-        if (refreshToken.isExpired(System.currentTimeMillis())) {
-            throw new BaseException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
+        if (refreshToken == null) {
+            throw new BaseException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // 사용자 정보 조회
@@ -73,6 +74,12 @@ public class AuthorizationService implements LoginUseCase, ReissueUseCase {
         // 새로운 Access Token 생성
         String newAccessToken = jwtProvider.generateAccessToken(user.getId(), String.valueOf(user.getRole()));
         return ReissueResult.of(newAccessToken);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String refreshToken) {
+        refreshTokenCommandPort.deleteRefreshToken(refreshToken);
     }
 }
 

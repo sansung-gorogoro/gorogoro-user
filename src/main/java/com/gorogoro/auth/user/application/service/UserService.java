@@ -12,7 +12,6 @@ import com.gorogoro.auth.user.application.port.in.UpdateUserUseCase;
 import com.gorogoro.auth.user.application.port.out.UserCommandPort;
 import com.gorogoro.auth.user.application.port.out.UserQueryPort;
 import com.gorogoro.auth.user.domain.model.User;
-import com.gorogoro.auth.user.domain.type.UserRole;
 import com.gorogoro.auth.user.domain.type.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
